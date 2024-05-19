@@ -25,7 +25,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Sound playerShot;
 	private Music backgndMusic;
 	private OrthographicCamera camera;
-	//private Rectangle playerShip;
 	private Viewport viewport;
 	private PlayerShip playerShip;
 	private Texture tBullet;
