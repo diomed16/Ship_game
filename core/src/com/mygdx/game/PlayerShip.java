@@ -49,8 +49,8 @@ public class PlayerShip implements Collidable, Updatable {
 
     public void shoot() {
         float damage =  10;
-        Vector2 bulletPosition = new Vector2(position.x + texture.getWidth() / 2 - bulletTexture.getWidth() / 2, position.y + texture.getHeight());
-        Vector2 velocity = new Vector2(0, 300); // Направление и скорость пули
+        Vector2 bulletPosition = new Vector2(position.x + texture.getWidth() / 2 - bulletTexture.getWidth() / 2, position.y + texture.getHeight()/2+bulletTexture.getHeight());
+        Vector2 velocity = new Vector2(0, 1100); // Направление и скорость пули
         Bullet bullet = new Bullet(bulletPosition, velocity,damage,  bulletTexture);
         bullets.add(bullet);
     }
