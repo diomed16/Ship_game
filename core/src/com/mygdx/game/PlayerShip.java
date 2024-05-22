@@ -19,7 +19,7 @@ public class PlayerShip implements Collidable, Updatable {
         this.texture = texture;
         this.bulletTexture = bulletTexture;
         this.position = new Vector2(x, y);
-        this.bounds = new Rectangle(x, y, texture.getWidth(), texture.getHeight());
+        this.bounds = new Rectangle(position.x, position.y, texture.getWidth(), texture.getHeight());
         this.bullets = new Array<>();
     }
     @Override
@@ -45,6 +45,26 @@ public class PlayerShip implements Collidable, Updatable {
         for (Bullet bullet : bullets) {
             bullet.draw(batch);
         }
+    }
+    public void setSize(float scaledWidth, float scaledHeight)
+    {
+     this.bounds.setSize(scaledWidth,scaledHeight) ;
+    }
+    public float getX()
+    {
+      return this.position.x;
+    }
+    public float getY()
+    {
+        return this.position.y;
+    }
+    public float getWidth()
+    {
+        return this.bounds.width;
+    }
+    public float getHeight()
+    {
+        return this.bounds.height;
     }
 
     public void shoot() {

@@ -21,7 +21,7 @@ import java.util.List;
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
 	private SpriteBatch sBackground;
-	private Texture background;
+	private Texture tBackground;
 	private Texture tPlayerShip;
 	private Sound playerShot;
 	private Music backgndMusic;
@@ -32,17 +32,20 @@ public class MyGdxGame extends ApplicationAdapter {
 	private Vector3 touchDownPos;
 	private List<Updatable> updatables;
 
+	private Background background;
+
 	@Override
 	public void create () {
 		touchDownPos = new Vector3();
 		batch = new SpriteBatch();
 		sBackground= new SpriteBatch();
+		background = new Background("tail_backgnd.png");
 	camera = new OrthographicCamera();
-	camera.setToOrtho(false,640,800);
+		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		viewport = new FitViewport(640, 800, camera);  // Задаем желаемые пропорции
 		camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
 
-		background = new Texture(Gdx.files.internal("Background.png"));
+		tBackground = new Texture(Gdx.files.internal("Background.png"));
 		tPlayerShip = new Texture(Gdx.files.internal("user_ship2.png"));
 		tBullet = new Texture(Gdx.files.internal("bullet.png"));
 		playerShot = Gdx.audio.newSound(Gdx.files.internal("shoot_user.wav"));
@@ -51,57 +54,74 @@ public class MyGdxGame extends ApplicationAdapter {
 		backgndMusic.setLooping(true);
 		backgndMusic.play();
 
-		float originalWidth = 137;
+		float originalWidth = 137;//Примеряемся для правильной стартовой позиции корабля
 		float originalHeight = 216;
-
-// Максимальный размер области
 		float maxWidth = 128;
 		float maxHeight = 128;
-
-// Рассчитываем масштаб для ширины и высоты
 		float scaleWidth = maxWidth / originalWidth;
 		float scaleHeight = maxHeight / originalHeight;
-
-// Выбираем наименьший масштаб, чтобы изображение вписалось в область и сохраняло пропорции
 		float scale = Math.min(scaleWidth, scaleHeight);
-
-// Вычисляем новые размеры изображения
 		int scaledWidth = (int) (originalWidth * scale);
 		int scaledHeight = (int) (originalHeight * scale);
-
-// Задаём новые размеры и позицию прямоугольника
-
-
-		float startX = 320 - scaledWidth / 2; // Центрируем изображение по горизонтали
-		float startY = 20; // Позиция по вертикали остаётся 20
-		playerShip = new PlayerShip(tPlayerShip, tBullet, startX, startY);
+		float startX = (Gdx.graphics.getWidth() - scaledWidth) / 2;
+		float startY = 20;
+		playerShip = new PlayerShip(tPlayerShip, tBullet, startX, startY);//создаём корабль с учётом кода выше
 
 
 		Gdx.input.setInputProcessor(new InputAdapter() {
+			private boolean isDragging = false;
+			private boolean hasMoved = false;
+			private Vector3 initialTouchPos = new Vector3();
+			private Vector3 touchPos = new Vector3();
+			private float offsetX;
+
 			@Override
 			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				Vector3 touchPos = new Vector3(screenX, screenY, 0);
+				touchPos.set(screenX, screenY, 0);
 				camera.unproject(touchPos);
-				playerShip.setPosition((int)(touchPos.x - 128 / 2));
-				return true;
+				float shipX = playerShip.getX();
+				float shipY = playerShip.getY();
+				float shipWidth = playerShip.getWidth();
+				float shipHeight = playerShip.getHeight();
+
+				if (touchPos.x >= shipX && touchPos.x <= shipX + shipWidth && touchPos.y >= shipY && touchPos.y <= shipY + shipHeight) {
+					isDragging = true;
+					hasMoved = false;
+					initialTouchPos.set(touchPos);
+					offsetX = touchPos.x - shipX;  // Save the offset from the touch point to the ship's position
+					return true;
+				}
+				return false;
 			}
 
 			@Override
 			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				Vector3 touchPos = new Vector3(screenX, screenY, 0);
-				camera.unproject(touchPos);
-				playerShip.setPosition((int)(touchPos.x - 128 / 2));
-				return true;
+				if (isDragging) {
+					touchPos.set(screenX, screenY, 0);
+					camera.unproject(touchPos);
+					if (!hasMoved && touchPos.dst(initialTouchPos) > 10) {
+						hasMoved = true;
+					}
+					playerShip.setPosition((int)(touchPos.x - offsetX));  // Use the saved offset to position the ship
+					return true;
+				}
+				return false;
 			}
 
 			@Override
 			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-				Vector3 touchPos = new Vector3(screenX, screenY, 0);
-				camera.unproject(touchPos);
-				if (touchPos.dst(touchDownPos) < 10) { // Чувствительность к перемещению для стрельбы
-					playerShip.shoot();
+				if (isDragging) {
+					isDragging = false;
+					touchPos.set(screenX, screenY, 0);
+					camera.unproject(touchPos);
+
+					if (!hasMoved) {
+						playerShip.shoot();
+						playerShot.play();
+					}
+					return true;
 				}
-				return true;
+				return false;
 			}
 		});
 	}
@@ -115,24 +135,13 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		sBackground.begin();
-		sBackground.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		background.render(sBackground);
 		sBackground.end();
 		playerShip.update(deltaTime);
 		batch.begin();
 		playerShip.draw(batch);
-
-
-
 		batch.end();
-/*
-		if(Gdx.input.isTouched()) {
-			Vector3 touchPos = new Vector3();
-			touchPos.set(Gdx.input.getX(), Gdx.input.getY(),0);
-			camera.unproject(touchPos);
-			playerShip.setPosition((int)(touchPos.x - 128 / 2));
-			playerShip.shoot();
-		}
-*/
+
 
 	}
 
@@ -145,6 +154,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		sBackground.dispose();
+		background.dispose();
 		playerShip.dispose();
 		batch.dispose();
 	}
