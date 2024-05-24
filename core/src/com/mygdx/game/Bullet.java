@@ -11,30 +11,31 @@ private boolean isImpulse;
 private Vector2 position;
 private Vector2 velocity;
 private float damage;
-private boolean alive;
 private Texture texture;
 private Rectangle bounds;
 private boolean destroyed;
+private Game game;
 
-    public Bullet(Vector2 position, Vector2 velocity, float damage) {
+    public Bullet(Game game, Vector2 position, Vector2 velocity, float damage) {
+        this.game = game;
         this.position = position;
         this.velocity = velocity;
         this.damage = damage;
-        this.texture = texture;
-        this.alive = true;
         this.destroyed = false;
-        texture = new Texture(Gdx.files.internal("bullet.png"));
+        this.texture = new Texture(Gdx.files.internal("bullet.png"));
+        this.bounds = new Rectangle(position.x, position.y, texture.getWidth(), texture.getHeight());
     }
 
     public void update(float deltaTime) {
-        if (alive) {
+        if (!destroyed) {
             position.add(velocity.x * deltaTime, velocity.y * deltaTime);
+            bounds.setPosition(position.x, position.y);
         }
 
     }
 
     public void draw(SpriteBatch batch) {
-        if (alive) {
+        if (!destroyed) {
             batch.draw(texture, position.x, position.y);
         }
     }
@@ -47,22 +48,20 @@ private boolean destroyed;
         texture.dispose();
     }
 
-    public boolean isAlive() {
-        return alive;
-    }
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
+
+
 
     @Override
     public Rectangle getBounds() {
-        return bounds;
+
+        return this.bounds;
     }
 
     @Override
     public void onCollision(Collidable other) {
-        this.alive = false; // действие при столкновении
+
+        this.destroyed = true; // действие при столкновении
     }
 
 

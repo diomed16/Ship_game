@@ -89,7 +89,7 @@ public class MyGdxGame extends ApplicationAdapter {
 					isDragging = true;
 					hasMoved = false;
 					initialTouchPos.set(touchPos);
-					offsetX = touchPos.x - shipX;  // Save the offset from the touch point to the ship's position
+					offsetX = touchPos.x - shipX;
 					return true;
 				}
 				return false;
@@ -103,7 +103,7 @@ public class MyGdxGame extends ApplicationAdapter {
 					if (!hasMoved && touchPos.dst(initialTouchPos) > 10) {
 						hasMoved = true;
 					}
-					playerShip.setPosition((int)(touchPos.x - offsetX));  // Use the saved offset to position the ship
+					playerShip.setPosition((int)(touchPos.x - offsetX));
 					return true;
 				}
 				return false;
@@ -117,7 +117,7 @@ public class MyGdxGame extends ApplicationAdapter {
 					camera.unproject(touchPos);
 
 					if (!hasMoved) {
-						playerShip.shoot();
+						playerShip.shoot(game);
 						playerShot.play();
 					}
 					return true;

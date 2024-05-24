@@ -7,15 +7,18 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
+import java.io.IOException;
+
 public class PlayerShip implements Collidable, Updatable {
+    private Game game;
     private Vector2 position;
     private Texture texture;
     private Rectangle bounds;
-    private float speed = 200; // Скорость корабля в пикселях в секунду
     private Array<Bullet> bullets; // Список пуль
     private Texture bulletTexture; // Текстура для пуль
 
     public PlayerShip(Texture texture, Texture bulletTexture, float x, float y) {
+        this.game = game;
         this.texture = texture;
         this.bulletTexture = bulletTexture;
         this.position = new Vector2(x, y);
@@ -33,7 +36,7 @@ public class PlayerShip implements Collidable, Updatable {
     public void update(float deltaTime) {
         for (int i = 0; i < bullets.size; i++) {
             bullets.get(i).update(deltaTime);
-            if (!bullets.get(i).isAlive()) { // Проверка, жива ли пуля
+            if (bullets.get(i).isDestroyed()) { // Проверка, жива ли пуля
                 bullets.removeIndex(i);
                 i--;
             }
@@ -67,12 +70,18 @@ public class PlayerShip implements Collidable, Updatable {
         return this.bounds.height;
     }
 
-    public void shoot() {
+    public void shoot(Game game) {
         float damage =  10;
         Vector2 bulletPosition = new Vector2(position.x + texture.getWidth() / 2 - bulletTexture.getWidth() / 2, position.y + texture.getHeight()/2+bulletTexture.getHeight());
         Vector2 velocity = new Vector2(0, 1100); // Направление и скорость пули
-        Bullet bullet = new Bullet(bulletPosition, velocity,damage);
-        bullets.add(bullet);
+        Bullet bullet = new Bullet(game,bulletPosition, velocity,damage);
+        try {
+            game.addBullet(bullet);
+        }
+        catch (NullPointerException e)
+         {
+            System.out.println(e.getMessage());
+        }
     }
     public void setPosition(float position)
     {

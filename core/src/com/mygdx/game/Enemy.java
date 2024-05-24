@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -32,6 +33,7 @@ public class Enemy implements Collidable, Updatable {
     @Override
     public void onCollision(Collidable other) {
         if (other instanceof Bullet) {
+            Gdx.app.log("Game", "Enemy destroyed");
             this.destroyed = true;
         }
     }
@@ -48,11 +50,11 @@ public class Enemy implements Collidable, Updatable {
     public void shoot() {
         Vector2 bulletPosition = new Vector2(position.x + width / 2, position.y);
         Vector2 velocity = new Vector2(0, -1100); // Направление и скорость пули
-        Bullet bullet = BulletFactory.createBullet(bulletPosition, velocity, 5);
+        Bullet bullet = new Bullet (game,bulletPosition, velocity, 5);
         game.addBullet(bullet);
     }
     public void render(SpriteBatch batch, Texture texture) {
-
+        if(!destroyed)
         batch.draw(texture, position.x, position.y, width, height);
     }
 }

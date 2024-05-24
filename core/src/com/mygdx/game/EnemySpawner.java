@@ -30,22 +30,20 @@ public class EnemySpawner {
             spawnEnemy(enemies);
             lastSpawnTime = currentTime;
         }
-
         for (Enemy enemy : enemies) {
             enemy.update(deltaTime);
         }
-
         enemies.removeIf(Enemy::isDestroyed);
     }
 
     private void spawnEnemy(List<Enemy> enemies) {
         int x = random.nextInt(800);
-        Vector2 position = new Vector2(x,480); // Пример координаты X (ширина экрана 800 пикселей)
+        Vector2 position = new Vector2(x,650);
 
-        float width = 20; // Ширина врага
-        float height = 20; // Высота врага
+        float width = 309*0.5f; // Ширина врага
+        float height = 208*0.5f; // Высота врага
         Enemy enemy = new Enemy(game,position, width, height);
-        enemies.add(enemy);
+        game.addEnemy(enemy);
     }
 
     public void render(List<Enemy> enemies) {
