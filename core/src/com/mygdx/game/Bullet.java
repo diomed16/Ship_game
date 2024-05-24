@@ -1,4 +1,5 @@
 package com.mygdx.game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -13,19 +14,23 @@ private float damage;
 private boolean alive;
 private Texture texture;
 private Rectangle bounds;
+private boolean destroyed;
 
-    public Bullet(Vector2 position, Vector2 velocity, float damage, Texture texture) {
+    public Bullet(Vector2 position, Vector2 velocity, float damage) {
         this.position = position;
         this.velocity = velocity;
         this.damage = damage;
         this.texture = texture;
         this.alive = true;
+        this.destroyed = false;
+        texture = new Texture(Gdx.files.internal("bullet.png"));
     }
 
     public void update(float deltaTime) {
         if (alive) {
             position.add(velocity.x * deltaTime, velocity.y * deltaTime);
         }
+
     }
 
     public void draw(SpriteBatch batch) {
@@ -35,7 +40,9 @@ private Rectangle bounds;
     }
 
 
-
+    public boolean isDestroyed() {
+        return destroyed;
+    }
     public void dispose() {
         texture.dispose();
     }
@@ -57,4 +64,6 @@ private Rectangle bounds;
     public void onCollision(Collidable other) {
         this.alive = false; // действие при столкновении
     }
+
+
 }

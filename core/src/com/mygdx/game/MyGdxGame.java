@@ -33,9 +33,10 @@ public class MyGdxGame extends ApplicationAdapter {
 	private List<Updatable> updatables;
 
 	private Background background;
-
+	private Game game;
 	@Override
 	public void create () {
+		game = new Game();
 		touchDownPos = new Vector3();
 		batch = new SpriteBatch();
 		sBackground= new SpriteBatch();
@@ -142,7 +143,8 @@ public class MyGdxGame extends ApplicationAdapter {
 		playerShip.draw(batch);
 		batch.end();
 
-
+		game.update(deltaTime);
+		game.render();
 	}
 
 
